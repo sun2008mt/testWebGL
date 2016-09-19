@@ -1,0 +1,65 @@
+<!--webgl animation: translation-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <canvas id="my_Canvas" width="300" height="300"></canvas>
+
+    <script>
+        var canvas = document.getElementById('my_Canvas');
+        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        var vertices = [
+                -0.5, 0.5, 0.0,
+                -0.5, -0.5, 0.0,
+                0.5, -0.5, 0.0
+        ];
+
+        var vertex_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        var vertCode = 'attribute vec4 coordinates;' +
+                'uniform vec4 translation;' +
+                'void main(void){' +
+                'gl_Position = coordinates + translation;' +
+                '}';
+        var vertShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertShader, vertCode);
+        gl.compileShader(vertShader);
+
+        var fragCode = 'void main(void){' +
+                'gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);' +
+                '}';
+        var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragShader, fragCode);
+        gl.compileShader(fragShader);
+
+        var shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertShader);
+        gl.attachShader(shaderProgram, fragShader);
+        gl.linkProgram(shaderProgram);
+        gl.useProgram(shaderProgram);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        var coordinatesVar = gl.getAttribLocation(shaderProgram, 'coordinates');
+        gl.vertexAttribPointer(coordinatesVar, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(coordinatesVar);
+
+        var Tx = 0.5, Ty = 0.5, Tz = 0.0;
+        var translation = gl.getUniformLocation(shaderProgram, 'translation');
+        gl.uniform4f(translation, Tx, Ty, Tz, 0.0);
+
+        gl.clearColor(0.5, 0.5, 0.5, 0.9);
+        gl.enable(gl.DEPTH_TEST);
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    </script>
+</body>
+</html>
