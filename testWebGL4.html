@@ -48,8 +48,8 @@
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
-        center: [-74.50, 40],
-        zoom: 7
+        center: [-74.5, 40],
+        zoom: 9
     });
 
     map.getCanvas().style.zIndex = -1;
@@ -65,7 +65,7 @@
     var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
 
     // 设定canvas初始化的颜色
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
     // 设定canvas初始化时候的深度
     gl.clearDepth(1.0);
@@ -84,12 +84,18 @@
     var vertex_position = [];
 
     //顶点个数
-    var verticesNum = 10000;
+    var verticesNum = 40000;
 
     //canvas屏幕坐标转换为webgl上下文坐标
     for (var i = 0; i < verticesNum; i++) {
-        var x = (Math.random() * c.width - c.width / 2) / (c.width / 2);
-        var y = (c.height / 2 - Math.random() * c.height) / (c.height / 2);
+        var lng = -75.5 + Math.random() * 2;
+        var lat = 39.7 + Math.random() * 0.6;
+        var lngLat = new mapboxgl.LngLat(lng, lat);
+
+        var point = map.project(lngLat);
+
+        var x = (point.x - c.width / 2) / (c.width / 2);
+        var y = (c.height / 2 - point.y) / (c.height / 2);
 
         vertex_position.push(x, y);
     }
@@ -149,23 +155,34 @@
         animate();
     });
 
-    map.on('zoomend', function () {
-        animate2();
-    })
+//    map.on('zoomend', function () {
+//        animate2();
+//    })
 
     function animate() {
         console.log('animate');
         requestAnimationFrame(animate);
 
-        for (var i = 0; i < vertex_position.length; i++) {
-            if (i % 2 === 0)
-                vertex_position[i] = (Math.random() * c.width - c.width / 2) / (c.width / 2);
-            else
-                vertex_position[i] = (c.height / 2 - Math.random() * c.height) / (c.height / 2);
+        for (var i = 0; i < vertex_position.length; i += 2) {
+//            if (i % 2 === 0)
+//                vertex_position[i] = (Math.random() * c.width - c.width / 2) / (c.width / 2);
+//            else
+//                vertex_position[i] = (c.height / 2 - Math.random() * c.height) / (c.height / 2);
+            var lng = -75.5 + Math.random() * 2;
+            var lat = 39.7 + Math.random() * 0.6;
+            var lngLat = new mapboxgl.LngLat(lng, lat);
+
+            var point = map.project(lngLat);
+
+            var x = (point.x - c.width / 2) / (c.width / 2);
+            var y = (c.height / 2 - point.y) / (c.height / 2);
+
+            vertex_position[i] = x;
+            vertex_position[i + 1] = y;
         }
 
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(0.0, 0.0, 0.0, 0.3);
         gl.clearDepth(1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -186,14 +203,22 @@
     function animate2() {
         console.log('animate2');
         for (var i = 0; i < vertex_position.length; i++) {
-            if (i % 2 === 0)
-                vertex_position[i] = (Math.random() * c.width - c.width / 2) / (c.width / 2);
-            else
-                vertex_position[i] = (c.height / 2 - Math.random() * c.height) / (c.height / 2);
+            var lng = -75.5 + Math.random() * 2;
+            var lat = 39.7 + Math.random() * 0.6;
+            var lngLat = new mapboxgl.LngLat(lng, lat);
+
+            var point = map.project(lngLat);
+
+            var x = (point.x - c.width / 2) / (c.width / 2);
+            var y = (c.height / 2 - point.y) / (c.height / 2);
+
+            vertex_position[i] = x;
+            vertex_position[i + 1] = y;
         }
 
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
         gl.clearDepth(1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
